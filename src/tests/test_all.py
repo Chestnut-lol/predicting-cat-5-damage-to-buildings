@@ -1,5 +1,4 @@
 import unittest
-
 from src.tests import test_data
 from src.tests import test_preprocessing
 from src.tests import test_models
