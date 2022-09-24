@@ -67,7 +67,7 @@ def find_all_files_with_extension_in_dir(dirname, extension, files = []):
                     files.append(name.path)
     return files
 
-def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True) --> List:
+def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
     """
     RETURNS
     ---
