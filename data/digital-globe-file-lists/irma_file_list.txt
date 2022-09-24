@@ -1,3 +1,6 @@
+  https://opendata.digitalglobe.com/events/hurricane-irma/vector-data/2017-09-26/tomnod20170926/digitalglobe_crowdsourcing_hurricane_irma_20170926.zip
+  https://opendata.digitalglobe.com/events/hurricane-irma/vector-data/2017-09-15/tomnod/digitalglobe_crowdsourcing_hurricane_irma_20170915.zip
+  https://opendata.digitalglobe.com/events/hurricane-irma/vector-data/2017-09-10/MDA/RS-2HurricaneIrma_FloodExtent_20170910_2245009.zip
   https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2017-09-05/1020010067564E00/1020010067564E00.tif
   https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2017-05-20/103001006B055400/103001006B055400.tif
   https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2016-09-08/103001005CD78300/103001005CD78300.tif
