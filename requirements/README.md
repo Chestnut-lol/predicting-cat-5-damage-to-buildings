@@ -14,3 +14,6 @@ A good workflow is:
 1. `pip install` the packages that your analysis needs
 2. Run `pip freeze > requirements.txt` to pin the exact package versions used to recreate the analysis
 3. If you find you need to install another package, run `pip freeze > requirements.txt` again and commit the changes to version control.
+
+## A word on downloading geopandas
+You will need to install Fiona before Geopandas. Here is a blog that tells you exactly how to install Fiona using pip: https://vincent.doba.fr/posts/20210407_install-fiona-on-windows/
