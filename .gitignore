@@ -90,3 +90,6 @@ io/
 
 # History files
 .history
+
+# Data
+data/patches
