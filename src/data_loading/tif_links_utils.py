@@ -93,3 +93,22 @@ def make_bounding_box_and_find_useful_links(left, bottom, right, top, links, top
     print_message(toprint, f"Found {len(pre_event_links)} pre event links")
     print_message(toprint, f"Found {len(post_event_links)} post event links")
     return (box, useful_pre_event_links, useful_post_event_links)
+
+def get_list_of_bounds_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> dict:
+    """
+    RETURNS:
+    ---
+        A dictionary, res, with keys: pre, post
+        res["pre"]: list of bounds of the sources obtained from pre_event_links
+        res["post"]: list of bounds of the sources obtained from post_event_links
+    """
+    res = dict()
+    all_links = get_tif_links(hurricane_name, toprint)
+    good_links = tidy_up_tif_links(all_links, toprint)
+    pre_event_links = [link for link in good_links if "pre-event" in link]
+    post_event_links = [link for link in good_links if "post-event" in link]
+    pre_event_bounds = [rio.open(link).bounds for link in pre_event_links]
+    post_event_bounds = [rio.open(link).bounds for link in post_event_links]
+    res["pre"] = pre_event_bounds
+    res["post"] = post_event_bounds
+    return res
