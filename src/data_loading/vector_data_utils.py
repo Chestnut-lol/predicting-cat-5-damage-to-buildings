@@ -1,6 +1,10 @@
 # Web scraping
+from http.cookiejar import DefaultCookiePolicy
 import requests
 import urllib
+
+# Handling geojson files
+import geopandas as gpd
 
 # Others
 from typing import List
@@ -9,6 +13,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data_loading.utils import *
+from data_loading.tif_links_utils import 
 
 def get_vector_data_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
     """
@@ -84,3 +89,28 @@ def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, topri
     print_message(toprint, f"There are {len(geojson_files)} geojson files available")
     return geojson_files
 
+def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True):
+    """
+    Combines all geojson files for the hurricane into one geojson file
+    The combined file will be saved in data/processed/geojson
+    """
+    print_message(toprint, f"Retrieving all geojson files for hurricane {hurricane_name}...")
+    geojson_files = load_all_vector_data_for_hurricane(hurricane_name, toprint)
+    assert len(geojson_files) > 0, f"No geojson files available for hurricane {hurricane_name}!"
+    path = geojson_files.pop()
+    res = gpd.read_file(path)
+    while len(geojson_files) > 0:
+        path = geojson_files.pop()
+        res.append(gpd.read_file(path))
+    # We only keep the points
+    # for which we have image data
+    print_message(toprint, f"There are {len(res)} buildings in total before trimming")
+
+
+def trim_gdf(gdf: gpd.GeoDataFrame):
+    """
+    This trims down the geodataframe 
+    We only keep the points that we have image for
+    """
+
+    
