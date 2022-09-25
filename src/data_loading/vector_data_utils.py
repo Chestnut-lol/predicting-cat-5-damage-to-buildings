@@ -13,7 +13,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data_loading.utils import *
-from data_loading.tif_links_utils import 
+
 
 def get_vector_data_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
     """
@@ -112,5 +112,6 @@ def trim_gdf(gdf: gpd.GeoDataFrame):
     This trims down the geodataframe 
     We only keep the points that we have image for
     """
+    return
 
     
