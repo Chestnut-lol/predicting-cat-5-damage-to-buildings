@@ -5,6 +5,12 @@ import urllib
 
 # Handling geojson files
 import geopandas as gpd
+import pandas as pd
+import numpy as np
+import shapely
+from shapely.geometry.point import Point
+
+from rasterio.coords import BoundingBox
 
 # Others
 from typing import List
@@ -13,7 +19,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data_loading.utils import *
-
+from data_loading.tif_links_utils import get_list_of_bounds_for_hurricane
 
 def get_vector_data_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
     """
@@ -81,6 +87,8 @@ def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, topri
     links = get_vector_data_links(hurricane_name, toprint)
     count = len(links)
     print_message(toprint, "Extracting files...")
+    if count == 0:
+        raise ValueError("No links available!")
     for (link, idx) in zip(links, list(range(count))):
         print_message(toprint, f"{idx+1}/{count}")
         destination_dir = load_vector_data_link(link, hurricane_name)
@@ -99,19 +107,77 @@ def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURR
     assert len(geojson_files) > 0, f"No geojson files available for hurricane {hurricane_name}!"
     path = geojson_files.pop()
     res = gpd.read_file(path)
+    print_message(toprint, f"Current gpd has size {len(res)}")
     while len(geojson_files) > 0:
         path = geojson_files.pop()
-        res.append(gpd.read_file(path))
+        temp = gpd.read_file(path)
+        res = pd.concat([res, temp])
+        print_message(toprint, f"Current gpd has size {len(res)}")
+
     # We only keep the points
     # for which we have image data
     print_message(toprint, f"There are {len(res)} buildings in total before trimming")
+    print_message(toprint, "Trimming...")
+    trimmed_res = trim_gdf(gpd.GeoDataFrame(res), hurricane_name, toprint)
+    print_message(toprint, f"There are {len(trimmed_res)} buildings in total after trimming")
+    if not os.path.isdir(PATH_TO_GEOJSONS):
+        os.mkdir(PATH_TO_GEOJSONS)
+    path = os.path.join(PATH_TO_GEOJSONS, hurricane_name + ".geojson")
+    trimmed_res.to_file(path, driver="GeoJSON")
+    print_message(toprint, f"Successfully saved trimmed vector data as a geojson file to:\n{path}")
+    return trimmed_res
 
+def check_point_in_bounding_box(point: Point, box: BoundingBox):
+    return (box.left < point.x < box.right) and  (box.bottom < point.y < box.top)
 
-def trim_gdf(gdf: gpd.GeoDataFrame):
+def exist_link_containing_point(point: Point, bounds_list: List) -> bool:
+    """
+    PARAMETERS
+    ---
+        point: a Point object from shapely.geometry.point
+        bounds_list: a list of BoundingBox objects
+    """
+    for bound in bounds_list:
+        if check_point_in_bounding_box(point, bound):
+            return True
+    return False
+
+def trim_gdf(gdf: gpd.GeoDataFrame, hurricane_name, toprint):
     """
     This trims down the geodataframe 
+    and adds two extra cols: 
+        exist_pre_event_imagery
+        exist_post_event_imagery
     We only keep the points that we have image for
     """
-    return
-
+    print_message(toprint, "Getting list of bounds...")
+    bounds_dict = get_list_of_bounds_for_hurricane(hurricane_name, toprint)
+    pre_image_cnt = len(bounds_dict["pre"])
+    post_image_cnt = len(bounds_dict["post"])
+    print_message(toprint, f"There are {pre_image_cnt} links of pre-images")
+    print_message(toprint, f"There are {post_image_cnt} links of post-images")
+    gdf["exist_post_event_imagery"] = gdf.geometry.apply(
+        lambda point: exist_link_containing_point(
+            point=point,
+            bounds_list=bounds_dict["post"]
+        )
+    )
+    print_message(toprint, f"There are {len(gdf.loc[gdf.exist_post_event_imagery])} buildings with post-event imagery")
     
+    gdf["exist_pre_event_imagery"] = gdf.geometry.apply(
+        lambda point: exist_link_containing_point(
+            point=point,
+            bounds_list=bounds_dict["pre"]
+        )
+    )
+    print_message(toprint, f"There are {len(gdf.loc[gdf.exist_pre_event_imagery])} buildings with pre-event imagery")
+    
+    return gdf.loc[
+        np.logical_or(
+            gdf.exist_pre_event_imagery.to_numpy(),
+            gdf.exist_post_event_imagery.to_numpy(),
+        )
+    ]
+
+if __name__ == "__main__":
+    combine_all_vector_data_and_save_for_hurricane()

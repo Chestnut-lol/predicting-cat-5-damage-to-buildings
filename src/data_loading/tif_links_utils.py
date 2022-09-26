@@ -1,4 +1,6 @@
 # Handle tif files
+from asyncio.format_helpers import _format_callback_source
+from genericpath import isfile
 import rasterio as rio
 import rioxarray as rxr
 import affine
@@ -19,7 +21,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data_loading.utils import *
 
-def get_tif_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
+def get_raw_tif_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
     """
     Get a list of tif links for the hurricane with hurricane_name
     The list must exist on github
@@ -35,15 +37,30 @@ def get_tif_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
     print_message(toprint, f"There are in total {len(links)} links.")
     return links
 
-def tidy_up_tif_links(links: List, toprint = True) -> List:
+def tidy_up_tif_links(links: List, hurricane_name, toprint = True, overwrite = False) -> List:
     """
     Given a list of tif links, will discard links that are useless
+    Will then save the tidied list of links in data/processed/digital-globe-file-list-tidied
+    
+    PARAMETERS
+    ---
+        links: a list of links
+        toprint: whether or not to print progress
+        overwrite: if exists hurricane_file_list_tidied, whether or not to overwrite
     """
     if len(links) == 0:
         raise ValueError("Empty list of links!")
+    if not overwrite:
+        # Check if tidied file exists
+        if os.path.isdir(PATH_TO_TIDIED_FILELISTS):
+            path = os.path.join(PATH_TO_TIDIED_FILELISTS, hurricane_name)
+            if os.path.isfile(path):
+                return get_tidied_tif_links(hurricane_name)
+    if not os.path.isdir(PATH_TO_TIDIED_FILELISTS):
+        os.mkdir(PATH_TO_TIDIED_FILELISTS)
     res = [] 
     before_count = len(links)
-    print_message(toprint, f"Tidying up a total of links {before_count} links...")
+    print_message(toprint, f"Tidying up a total of {before_count} links...")
     # Only want tif files with band >= 3
     for (link,idx) in zip(links, list(range(before_count))):
         print_message(toprint, f"{idx+1}/{before_count}", end="\r")
@@ -55,7 +72,31 @@ def tidy_up_tif_links(links: List, toprint = True) -> List:
             pass 
     after_count = len(res)
     print_message(toprint, f"Before: {before_count} links \nAfter: {after_count} links")
+    path = os.path.join(PATH_TO_TIDIED_FILELISTS, hurricane_name)
+    f = open(path, "w")
+    for link in res:
+        f.write(link+"\n")
+    f.close()
     return res
+
+def get_tidied_tif_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> List:
+    """
+    Get a list of tidied tif links for the hurricane with hurricane_name
+    If the tidied file list does not exist, will look for raw data & tidy up
+    """
+    file_list_path = os.path.join(PATH_TO_TIDIED_FILELISTS, hurricane_name)
+    if not os.path.isfile(file_list_path):
+        links = get_raw_tif_links(hurricane_name, toprint)
+        res = tidy_up_tif_links(links, hurricane_name, toprint)
+        assert os.path.isfile(file_list_path) == True, "file should exist now!"
+        return res
+    else:
+        data = open(file_list_path, "r")
+        L = data.readlines()
+        data.close()
+        links = [link.strip() for link in L if ".tif" in link]
+        return links
+
 
 def find_useful_links_for_box(links: List, box: BoundingBox, toprint = True) -> List:
     """
@@ -103,8 +144,7 @@ def get_list_of_bounds_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint
         res["post"]: list of bounds of the sources obtained from post_event_links
     """
     res = dict()
-    all_links = get_tif_links(hurricane_name, toprint)
-    good_links = tidy_up_tif_links(all_links, toprint)
+    good_links = get_tidied_tif_links(hurricane_name, toprint)
     pre_event_links = [link for link in good_links if "pre-event" in link]
     post_event_links = [link for link in good_links if "post-event" in link]
     pre_event_bounds = [rio.open(link).bounds for link in pre_event_links]
