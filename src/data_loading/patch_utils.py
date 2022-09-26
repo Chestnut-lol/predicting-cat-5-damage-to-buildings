@@ -39,7 +39,7 @@ def get_geom_for_point(point: Point, dist):
         geometry=[
             box(left, bottom, right, top)
         ],
-        crs="EPSE:4326"
+        crs="EPSG:4326"
     )
     return geodf
 
@@ -78,14 +78,14 @@ def main(hurricane_name = DEFAULT_HURRICANE, toprint = True):
     del(post_event_srcs)
 
     gdf = combine_all_vector_data_and_save_for_hurricane(hurricane_name, toprint)
-    if not gdf or len(gdf) == 0:
+    if len(gdf) == 0:
         raise Exception(f"No processed vector data for hurricane {hurricane_name}")
     path_to_hurricane_patches = os.path.join(PATH_TO_PATCHES, hurricane_name)
     path_to_hurricane_patches_pre = os.path.join(path_to_hurricane_patches, "pre")
     path_to_hurricane_patches_post = os.path.join(path_to_hurricane_patches, "post")
-    os.mkdir(path_to_hurricane_patches, exist_ok = True)
-    os.mkdir(path_to_hurricane_patches_pre, exist_ok = True)
-    os.mkdir(path_to_hurricane_patches_post, exist_ok = True)
+    os.makedirs(path_to_hurricane_patches, exist_ok = True)
+    os.makedirs(path_to_hurricane_patches_pre, exist_ok = True)
+    os.makedirs(path_to_hurricane_patches_post, exist_ok = True)
     for (point,idx) in zip(gdf.geometry,range(len(gdf))):
         path_to_dir_pre = os.path.join(path_to_hurricane_patches_pre, str(idx))
         path_to_dir_post = os.path.join(path_to_hurricane_patches_post, str(idx))
