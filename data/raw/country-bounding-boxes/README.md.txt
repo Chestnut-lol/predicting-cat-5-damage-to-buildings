@@ -1,1 +1,0 @@
-The csv file is downloaded from here: https://data.humdata.org/dataset/bounding-boxes-for-countries/resource/aec5d77d-095a-4d42-8a13-5193ec18a6a9
