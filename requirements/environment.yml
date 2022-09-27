@@ -8,3 +8,4 @@ dependencies:
   - pip:
     - hydra-core
     - -r dev-requirements.txt
+    - -r requirements.txt
