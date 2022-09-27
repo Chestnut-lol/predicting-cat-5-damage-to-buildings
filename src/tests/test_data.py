@@ -1,4 +1,3 @@
-from email import utils
 import unittest
 import os.path
 import sys
@@ -43,8 +42,6 @@ class TestTifLinksUtils(unittest.TestCase):
         assert len(res) == 4, f"Expect 4 links but get {len(res)} instead"
         assert len(ans) == 4, f"Expect 4 links but get {len(ans)} instead"
         assert ans == res
-        
-
 
     def test_make_bounding_box_and_find_useful_links(self):
         links = ['https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2017-09-05/1020010067564E00/1020010067564E00.tif', 'https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2017-05-20/103001006B055400/103001006B055400.tif', 'https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2016-09-08/103001005CD78300/103001005CD78300.tif', 'https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2016-08-25/103001005B6AEB00/103001005B6AEB00.tif', 'https://opendata.digitalglobe.com/events/hurricane-irma/pre-event/2016-02-07/1040010018601F00/1040010018601F00.tif']

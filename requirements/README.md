@@ -16,4 +16,4 @@ A good workflow is:
 3. If you find you need to install another package, run `pip freeze > requirements.txt` again and commit the changes to version control.
 
 ## A word on downloading geopandas
-You will need to install Fiona before Geopandas. Here is a blog that tells you exactly how to install Fiona using pip: https://vincent.doba.fr/posts/20210407_install-fiona-on-windows/
+You will need to install Fiona and GDAL before Geopandas. Here is a blog that tells you exactly how to install Fiona using pip: https://vincent.doba.fr/posts/20210407_install-fiona-on-windows/

@@ -4,7 +4,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data_loading.utils import *
 from data_loading.tif_links_utils import *
 from data_loading.vector_data_utils import *
-import rioxarray as rxr
+import rasterio as rio
+from rasterio.windows import from_bounds
+from rasterio.io import MemoryFile
 import shapely
 from shapely.geometry.point import Point
 from shapely.geometry import box
@@ -39,58 +41,77 @@ def get_geom_for_point(point: Point, dist):
         geometry=[
             box(left, bottom, right, top)
         ],
-        crs="EPSG:4326"
+        crs="EPSG:4326" # use lat lon crs system
     )
     return geodf
 
-def crop_patches_for_point(xds_list: List, bounds_list: List, point: Point, dist, path_to_dir, toprint = True):
+
+def create_dataset(data:np.ndarray, crs:CRS, transform:affine.Affine) -> rio.io.DatasetReader:
+  # Receives a 2D array, a transform and a crs to create a rasterio dataset
+  memfile = MemoryFile()
+  dataset = memfile.open(driver='GTiff', height=data.shape[1], width=data.shape[2], count=4, crs=crs, 
+                          transform=transform, dtype=data.dtype)
+  dataset.write(data)
+  return dataset
+
+def crop_patches_for_point(links: List, bounds_list: List, point: Point, dist, path_to_dir, toprint = True):
     """
     PARAMETERS:
     ---
-        xds_list: a list of xarray dataArray objects
+        links: a list of links
         bounds_list: a list of BoundingBox from rasterio.coords 
         point: the point that we want to crop patches for
         path_to_dir: path to the directory in which we will store all the patches
     """
     print_message(toprint, "Setting up...")
     geodf = get_geom_for_point(point, dist)
+    (left, bottom, right, top) = geodf.geometry[0].bounds
     print_message(toprint, "Getting list of indices for point...")
     indices = get_indices_for_point(bounds_list, point)
     print_message(toprint, f"Cropping from a total of {len(indices)} images...")
     for (idx, i) in zip(indices, range(len(indices))):
         print_message(toprint, f"{idx+1}/{len(indices)}",end="\r")
-        clipped = xds_list[idx].rio.clip(geodf.geometry, geodf.crs)
+        link = links[idx]
+        with rio.open(link) as src:
+            window = from_bounds(
+                left, bottom, right, top, src.transform,
+                )
+            window_transform = src.window_transform(window)
+            clipped = src.read(window=window)
+        print_message(toprint, f"Clipped data has shape: {clipped.shape}")
+        print_message(toprint,"Saving...")
         filename = os.path.join(path_to_dir, f"{i+1}.tif")
-        clipped.rio.to_raster(filename, compress='LZMA', tiled=True, dtype="int32")
-
+        with rio.open(
+            filename, 'w',
+            driver='GTiff', width=500, height=300, count=3,
+            dtype=clipped.dtype) as dst:
+            dst.write(clipped)
 
 def main(hurricane_name = DEFAULT_HURRICANE, toprint = True):
     links = get_tidied_tif_links(hurricane_name, toprint)
     pre_event_links = [link for link in links if "pre-event" in link]
     post_event_links = [link for link in links if "post-event" in link]
-    pre_event_srcs = [rio.open(link) for link in pre_event_links]
-    post_event_srcs = [rio.open(link) for link in post_event_links]
-    pre_event_bounds = [src.bounds for src in pre_event_srcs]
-    post_event_bounds = [src.bounds for src in post_event_srcs]
-    pre_event_xds = [rxr.open_rasterio(src) for src in pre_event_srcs]
-    del(pre_event_srcs)
-    post_event_xds = [rxr.open_rasterio(src) for src in post_event_srcs]
-    del(post_event_srcs)
+    pre_event_bounds = [rio.open(link).bounds for link in pre_event_links]
+    post_event_bounds = [rio.open(link).bounds for link in post_event_links]
 
     gdf = combine_all_vector_data_and_save_for_hurricane(hurricane_name, toprint)
     if len(gdf) == 0:
         raise Exception(f"No processed vector data for hurricane {hurricane_name}")
+    
     path_to_hurricane_patches = os.path.join(PATH_TO_PATCHES, hurricane_name)
     path_to_hurricane_patches_pre = os.path.join(path_to_hurricane_patches, "pre")
     path_to_hurricane_patches_post = os.path.join(path_to_hurricane_patches, "post")
     os.makedirs(path_to_hurricane_patches, exist_ok = True)
     os.makedirs(path_to_hurricane_patches_pre, exist_ok = True)
     os.makedirs(path_to_hurricane_patches_post, exist_ok = True)
+    
     for (point,idx) in zip(gdf.geometry,range(len(gdf))):
         path_to_dir_pre = os.path.join(path_to_hurricane_patches_pre, str(idx))
         path_to_dir_post = os.path.join(path_to_hurricane_patches_post, str(idx))
-        crop_patches_for_point(pre_event_xds, pre_event_bounds, point, 20, path_to_dir_pre, toprint)
-        crop_patches_for_point(post_event_xds, post_event_bounds, point, 20, path_to_dir_post, toprint)
+        os.makedirs(path_to_dir_pre, exist_ok = True)
+        os.makedirs(path_to_dir_post, exist_ok = True)
+        crop_patches_for_point(pre_event_links, pre_event_bounds, point, 20, path_to_dir_pre, toprint)
+        crop_patches_for_point(post_event_links, post_event_bounds, point, 20, path_to_dir_post, toprint)
 
 if __name__ == "__main__":
     main("test")

@@ -97,11 +97,25 @@ def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, topri
     print_message(toprint, f"There are {len(geojson_files)} geojson files available")
     return geojson_files
 
-def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True):
+def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True, overwrite = False):
     """
     Combines all geojson files for the hurricane into one geojson file
     The combined file will be saved in data/processed/geojson
+
+    PARAMETERS:
+    ---
+        hurricane_name: name of the hurricane
+        toprint: whether or not to print progress
+        overwrite: whether or not to overwrite existing processed vector data
     """
+    # This is the path to the processed vector data file
+    if not os.path.isdir(PATH_TO_GEOJSONS):
+        os.mkdir(PATH_TO_GEOJSONS)
+    path = os.path.join(PATH_TO_GEOJSONS, hurricane_name + ".geojson")
+    # If there is already a processed data file
+    if os.path.isfile(path) and not overwrite: 
+        return gpd.read_file(path)
+
     print_message(toprint, f"Retrieving all geojson files for hurricane {hurricane_name}...")
     geojson_files = load_all_vector_data_for_hurricane(hurricane_name, toprint)
     assert len(geojson_files) > 0, f"No geojson files available for hurricane {hurricane_name}!"
@@ -120,9 +134,8 @@ def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURR
     print_message(toprint, "Trimming...")
     trimmed_res = trim_gdf(gpd.GeoDataFrame(res), hurricane_name, toprint)
     print_message(toprint, f"There are {len(trimmed_res)} buildings in total after trimming")
-    if not os.path.isdir(PATH_TO_GEOJSONS):
-        os.mkdir(PATH_TO_GEOJSONS)
-    path = os.path.join(PATH_TO_GEOJSONS, hurricane_name + ".geojson")
+    
+    # Save processed vector data
     trimmed_res.to_file(path, driver="GeoJSON")
     print_message(toprint, f"Successfully saved trimmed vector data as a geojson file to:\n{path}")
     return trimmed_res
