@@ -2,7 +2,6 @@
 from asyncio.format_helpers import _format_callback_source
 from genericpath import isfile
 import rasterio as rio
-import rioxarray as rxr
 import affine
 
 # Some useful thiings from rasterio

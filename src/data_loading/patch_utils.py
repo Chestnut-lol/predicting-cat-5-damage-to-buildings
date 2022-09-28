@@ -1,3 +1,4 @@
+from email import contentmanager
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -7,10 +8,11 @@ from data_loading.vector_data_utils import *
 import rasterio as rio
 from rasterio.windows import from_bounds
 from rasterio.io import MemoryFile
+from rasterio.crs import CRS
 import shapely
 from shapely.geometry.point import Point
 from shapely.geometry import box
-from typing import List
+from typing import Counter, List
 
 def get_indices_for_point(bounds_list: List, point: Point):
     """
@@ -46,10 +48,10 @@ def get_geom_for_point(point: Point, dist):
     return geodf
 
 
-def create_dataset(data:np.ndarray, crs:CRS, transform:affine.Affine) -> rio.io.DatasetReader:
+def create_dataset(data:np.ndarray, crs:CRS, count:int, transform:affine.Affine) -> rio.io.DatasetReader:
   # Receives a 2D array, a transform and a crs to create a rasterio dataset
   memfile = MemoryFile()
-  dataset = memfile.open(driver='GTiff', height=data.shape[1], width=data.shape[2], count=4, crs=crs, 
+  dataset = memfile.open(driver='GTiff', height=data.shape[1], width=data.shape[2], count=count, crs=crs, 
                           transform=transform, dtype=data.dtype)
   dataset.write(data)
   return dataset
@@ -78,13 +80,21 @@ def crop_patches_for_point(links: List, bounds_list: List, point: Point, dist, p
                 )
             window_transform = src.window_transform(window)
             clipped = src.read(window=window)
+            crs = src.crs
+            count = src.count
         print_message(toprint, f"Clipped data has shape: {clipped.shape}")
         print_message(toprint,"Saving...")
         filename = os.path.join(path_to_dir, f"{i+1}.tif")
         with rio.open(
             filename, 'w',
-            driver='GTiff', width=500, height=300, count=3,
-            dtype=clipped.dtype) as dst:
+            driver='GTiff', 
+            width=clipped.shape[2], 
+            height=clipped.shape[1], 
+            count=count,
+            transform=window_transform, 
+            crs=crs, 
+            dtype=clipped.dtype,
+            ) as dst:
             dst.write(clipped)
 
 def main(hurricane_name = DEFAULT_HURRICANE, toprint = True):
@@ -114,4 +124,6 @@ def main(hurricane_name = DEFAULT_HURRICANE, toprint = True):
         crop_patches_for_point(post_event_links, post_event_bounds, point, 20, path_to_dir_post, toprint)
 
 if __name__ == "__main__":
-    main("test")
+    hurricane_name = input("Please input hurricane name (Press enter to use default test data):")
+    hurricane_name = hurricane_name.strip()
+    main(hurricane_name)

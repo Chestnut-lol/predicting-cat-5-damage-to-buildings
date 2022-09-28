@@ -192,5 +192,3 @@ def trim_gdf(gdf: gpd.GeoDataFrame, hurricane_name, toprint):
         )
     ]
 
-if __name__ == "__main__":
-    combine_all_vector_data_and_save_for_hurricane()
