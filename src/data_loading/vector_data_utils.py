@@ -135,10 +135,15 @@ def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURR
     trimmed_res = trim_gdf(gpd.GeoDataFrame(res), hurricane_name, toprint)
     print_message(toprint, f"There are {len(trimmed_res)} buildings in total after trimming")
     
+    # We only want points that are buildings, not other things
+    print_message(toprint, "Filtering...")
+    filtered_trimmed_res = trimmed_res.loc[trimmed_res.label == "Flooded / Damaged Building"]
+    print_message(toprint, f"There are {len(filtered_trimmed_res)} buildings in total after filtering")
+    
     # Save processed vector data
-    trimmed_res.to_file(path, driver="GeoJSON")
+    filtered_trimmed_res.to_file(path, driver="GeoJSON")
     print_message(toprint, f"Successfully saved trimmed vector data as a geojson file to:\n{path}")
-    return trimmed_res
+    return filtered_trimmed_res
 
 def check_point_in_bounding_box(point: Point, box: BoundingBox):
     return (box.left < point.x < box.right) and  (box.bottom < point.y < box.top)
@@ -192,3 +197,5 @@ def trim_gdf(gdf: gpd.GeoDataFrame, hurricane_name, toprint):
         )
     ]
 
+if __name__ == "__main__":
+    combine_all_vector_data_and_save_for_hurricane("irma",toprint=True,overwrite=True)
