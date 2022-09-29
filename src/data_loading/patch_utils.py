@@ -56,7 +56,7 @@ def create_dataset(data:np.ndarray, crs:CRS, count:int, transform:affine.Affine)
   dataset.write(data)
   return dataset
 
-def crop_patches_for_point(links: List, bounds_list: List, point: Point, dist, path_to_dir, toprint = True):
+def crop_patches_for_point(links: List, bounds_list: List, point: Point, point_idx, dist, path_to_dir, toprint = True):
     """
     PARAMETERS:
     ---
@@ -84,7 +84,7 @@ def crop_patches_for_point(links: List, bounds_list: List, point: Point, dist, p
             count = src.count
         print_message(toprint, f"Clipped data has shape: {clipped.shape}")
         print_message(toprint,"Saving...")
-        filename = os.path.join(path_to_dir, f"{i+1}.tif")
+        filename = os.path.join(path_to_dir, f"{point_idx}-{i+1}.tif")
         with rio.open(
             filename, 'w',
             driver='GTiff', 
@@ -116,14 +116,11 @@ def main(hurricane_name = DEFAULT_HURRICANE, toprint = True):
     os.makedirs(path_to_hurricane_patches_post, exist_ok = True)
     
     for (point,idx) in zip(gdf.geometry,range(len(gdf))):
-        path_to_dir_pre = os.path.join(path_to_hurricane_patches_pre, str(idx))
-        path_to_dir_post = os.path.join(path_to_hurricane_patches_post, str(idx))
-        os.makedirs(path_to_dir_pre, exist_ok = True)
-        os.makedirs(path_to_dir_post, exist_ok = True)
-        crop_patches_for_point(pre_event_links, pre_event_bounds, point, 20, path_to_dir_pre, toprint)
-        crop_patches_for_point(post_event_links, post_event_bounds, point, 20, path_to_dir_post, toprint)
+        crop_patches_for_point(pre_event_links, pre_event_bounds, point, idx, 20, path_to_hurricane_patches_pre, toprint)
+        crop_patches_for_point(post_event_links, post_event_bounds, point, idx, 20, path_to_hurricane_patches_post, toprint)
 
 if __name__ == "__main__":
     hurricane_name = input("Please input hurricane name (Press enter to use default test data):")
     hurricane_name = hurricane_name.strip()
+    hurricane_name = hurricane_name.lower()
     main(hurricane_name)

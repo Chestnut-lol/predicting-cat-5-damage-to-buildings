@@ -28,7 +28,8 @@ def get_raw_tif_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> Lis
     filename = hurricane_name + FILE_LIST_SUFFIX
     file_list_path = FILE_LIST_PREFIX + filename
     response = requests.get(file_list_path)
-    assert response.status_code == 200, f"Unsuccessful request! Status code: {response.status_code}"
+    assert response.status_code == 200, f"Unsuccessful request! Status code: {response.status_code}" +\
+        "\nThis may because you input an incorrect name for the hurricane"
     data = response.text 
     assert data != None, "No data!"
     L = data.split("\n")
@@ -95,7 +96,6 @@ def get_tidied_tif_links(hurricane_name = DEFAULT_HURRICANE, toprint = True) -> 
         data.close()
         links = [link.strip() for link in L if ".tif" in link]
         return links
-
 
 def find_useful_links_for_box(links: List, box: BoundingBox, toprint = True) -> List:
     """
