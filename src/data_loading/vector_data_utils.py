@@ -1,5 +1,5 @@
 # Web scraping
-from http.cookiejar import DefaultCookiePolicy
+from msilib.schema import ComboBox
 import requests
 import urllib
 
@@ -7,9 +7,11 @@ import urllib
 import geopandas as gpd
 import pandas as pd
 import numpy as np
-import shapely
-from shapely.geometry.point import Point
-
+# Each building label is represented as a Point object
+# From shapely
+from shapely.geometry.point import Point 
+# Finds the country
+import country_bounding_boxes as cbb
 from rasterio.coords import BoundingBox
 
 # Others
@@ -132,18 +134,22 @@ def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURR
     # for which we have image data
     print_message(toprint, f"There are {len(res)} buildings in total before trimming")
     print_message(toprint, "Trimming...")
-    trimmed_res = trim_gdf(gpd.GeoDataFrame(res), hurricane_name, toprint)
-    print_message(toprint, f"There are {len(trimmed_res)} buildings in total after trimming")
+    trimmed = trim_gdf(gpd.GeoDataFrame(res), hurricane_name, toprint)
+    print_message(toprint, f"There are {len(trimmed)} buildings in total after trimming")
     
     # We only want points that are buildings, not other things
     print_message(toprint, "Filtering...")
-    filtered_trimmed_res = trimmed_res.loc[trimmed_res.label == "Flooded / Damaged Building"]
-    print_message(toprint, f"There are {len(filtered_trimmed_res)} buildings in total after filtering")
+    trimmed_filtered = trimmed.loc[trimmed.label == "Flooded / Damaged Building"].copy()
+    print_message(toprint, f"There are {len(trimmed_filtered)} buildings in total after filtering")
     
+    # Add country names
+    print_message(toprint, "Adding country names...")
+    add_country_names(trimmed_filtered, hurricane_name, toprint)
+
     # Save processed vector data
-    filtered_trimmed_res.to_file(path, driver="GeoJSON")
+    trimmed_filtered.to_file(path, driver="GeoJSON")
     print_message(toprint, f"Successfully saved trimmed vector data as a geojson file to:\n{path}")
-    return filtered_trimmed_res
+    return trimmed_filtered
 
 def check_point_in_bounding_box(point: Point, box: BoundingBox):
     return (box.left < point.x < box.right) and  (box.bottom < point.y < box.top)
@@ -197,5 +203,36 @@ def trim_gdf(gdf: gpd.GeoDataFrame, hurricane_name, toprint):
         )
     ]
 
+def find_countries_for_point(point: Point) -> str:
+    """
+    Find the country that the point is in
+    
+    RETURNS:
+    ---
+        The country/countries that the point is in, separated by commas
+    """
+    cs = [c.name for c in cbb.country_subunits_containing_point(point.x, point.y)]
+    return ", ".join(cs)
+
+def add_country_names(gdf: gpd.GeoDataFrame, hurricane_name, toprint):
+    gdf["country"] = gdf.geometry.apply(
+        lambda point: find_countries_for_point(point)
+    )
+    if toprint:
+        countries = {}
+        for p in gdf.geometry.tolist():
+            cs = [c.name for c in cbb.country_subunits_containing_point(p.x, p.y)]
+            for c in cs:
+                if c not in countries.keys():
+                    countries[c] = 1
+                else:
+                    countries[c] += 1
+        print(f"The countries in the dataset for {hurricane_name} are: ")
+        for c in countries.keys():
+            print(c," ",countries[c])
+        print("---------------")
+        print("Total: ", sum([countries[c] for c in countries.keys()]))
+
 if __name__ == "__main__":
-    combine_all_vector_data_and_save_for_hurricane("irma",toprint=True,overwrite=True)
+    df = combine_all_vector_data_and_save_for_hurricane("irma",toprint=True,overwrite=True)
+    print(df.info())
