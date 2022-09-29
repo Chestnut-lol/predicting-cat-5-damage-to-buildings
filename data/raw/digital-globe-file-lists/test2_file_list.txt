@@ -1,0 +1,5 @@
+https://opendata.digitalglobe.com/hurricane-dorian/vector-data/2019-09-20/osm-data/Dorian_OSM_Results.zip
+https://opendata.digitalglobe.com/hurricane-dorian/pre-event/2019-08-31/103001009AA94A00/0211032.tif
+https://opendata.digitalglobe.com/hurricane-dorian/pre-event/2019-08-31/103001009AA94A00/0211030.tif
+https://opendata.digitalglobe.com/hurricane-dorian/post-event/2019-09-06/1030010097D4EF00/0212030.tif
+https://opendata.digitalglobe.com/hurricane-dorian/post-event/2019-09-06/1030010097D4EF00/0212010.tif
