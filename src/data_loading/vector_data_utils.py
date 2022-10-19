@@ -1,4 +1,5 @@
 # Web scraping
+from importlib.resources import files
 from msilib.schema import ComboBox
 import requests
 import urllib
@@ -47,7 +48,6 @@ def load_vector_data_link(vector_data_link, hurricane_name = DEFAULT_HURRICANE):
     # Download and extract the zip file
     filename = vector_data_link.split("/")[-1] # name of the zip file
     destination_dir = os.path.join(PATH_TO_DATA_RAW, f"{hurricane_name}-vector-data")
-    destination_path = os.path.join(destination_dir, filename[:-4]+"geojson")
     
     if not os.path.isdir(destination_dir):
         os.mkdir(destination_dir)
@@ -55,28 +55,28 @@ def load_vector_data_link(vector_data_link, hurricane_name = DEFAULT_HURRICANE):
         urllib.request.urlretrieve(vector_data_link, filename=filename)
 
     with zipfile.ZipFile(filename, 'r') as zip_ref:
-        zip_ref.extractall(destination_path)
+        zip_ref.extractall(destination_dir)
 
     # After extraction, delete the zip file
     os.remove(os.path.join(PATH_TO_DIR,filename))
     return destination_dir
 
-def find_all_files_with_extension_in_dir(dirname, extension, files = []):
+def find_all_files_with_extension_in_dir(dirname, desired_extension, files = []):
     """
     Given a directory, finds a list of paths to files with extension 
     
     EXAMPLE:
     --- 
-    Using extension = ".geojson", will return a list of paths to all
+    Using desired_extension = ".geojson", will return a list of paths to all
     geojson files in the directory 
     """
     for name in os.scandir(dirname):
         if os.path.isdir(name):
-            files = find_all_files_with_extension_in_dir(name.path, extension, files)
+            files = find_all_files_with_extension_in_dir(name.path, desired_extension, files)
         else:
             if os.path.isfile(name):
                 extension = os.path.splitext(name)[1]
-                if extension==".geojson":
+                if extension == desired_extension:
                     files.append(name.path)
     return files
 
@@ -84,7 +84,7 @@ def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, topri
     """
     RETURNS
     ---
-        geojson_files: a list of paths to all the geojson files related to hurricane_name
+        files: a list of paths to all the geojson files related to hurricane_name
     """
     links = get_vector_data_links(hurricane_name, toprint)
     count = len(links)
@@ -95,11 +95,11 @@ def load_all_vector_data_for_hurricane(hurricane_name = DEFAULT_HURRICANE, topri
         print_message(toprint, f"{idx+1}/{count}")
         destination_dir = load_vector_data_link(link, hurricane_name)
     print_message(toprint, f"Extracted files can be found in {destination_dir}")
-    geojson_files = find_all_files_with_extension_in_dir(destination_dir, ".geojson")
+    geojson_files = find_all_files_with_extension_in_dir(destination_dir, ".geojson", [])
     print_message(toprint, f"There are {len(geojson_files)} geojson files available")
     return geojson_files
 
-def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True, overwrite = False):
+def combine_all_vector_data(hurricane_name, toprint, overwrite):
     """
     Combines all geojson files for the hurricane into one geojson file
     The combined file will be saved in data/processed/geojson
@@ -117,22 +117,34 @@ def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURR
     # If there is already a processed data file
     if os.path.isfile(path) and not overwrite: 
         return gpd.read_file(path)
-
-    print_message(toprint, f"Retrieving all geojson files for hurricane {hurricane_name}...")
-    geojson_files = load_all_vector_data_for_hurricane(hurricane_name, toprint)
-    assert len(geojson_files) > 0, f"No geojson files available for hurricane {hurricane_name}!"
-    path = geojson_files.pop()
+    print_message(toprint, f"Retrieving all vector data files for hurricane {hurricane_name}...")
+    files = load_all_vector_data_for_hurricane(hurricane_name, toprint)
+    assert len(files) > 0, f"No geojson data files available for hurricane {hurricane_name}!"
+    path = files.pop()
     res = gpd.read_file(path)
-    print_message(toprint, f"Current gpd has size {len(res)}")
-    while len(geojson_files) > 0:
-        path = geojson_files.pop()
+    while len(files) > 0:
+        path = files.pop()
         temp = gpd.read_file(path)
         res = pd.concat([res, temp])
-        print_message(toprint, f"Current gpd has size {len(res)}")
+    print_message(toprint, f"There are in total {len(res)} rows")
+    res.to_file(path, driver="GeoJSON")
+    print_message(toprint, f"Successfully saved vector data as a geojson file to:\n{path}")
+    return res
+
+
+def combine_all_vector_data_and_save_for_hurricane(hurricane_name = DEFAULT_HURRICANE, toprint = True, overwrite = False):
+    # This is the path to the processed vector data file
+    if not os.path.isdir(PATH_TO_GEOJSONS):
+        os.mkdir(PATH_TO_GEOJSONS)
+    path = os.path.join(PATH_TO_GEOJSONS, hurricane_name + ".geojson")
+    # If there is already a processed data file
+    if os.path.isfile(path) and not overwrite: 
+        return gpd.read_file(path)
+
+    res = combine_all_vector_data(hurricane_name, toprint, overwrite=True)
 
     # We only keep the points
     # for which we have image data
-    print_message(toprint, f"There are {len(res)} buildings in total before trimming")
     print_message(toprint, "Trimming...")
     trimmed = trim_gdf(gpd.GeoDataFrame(res), hurricane_name, toprint)
     print_message(toprint, f"There are {len(trimmed)} buildings in total after trimming")
@@ -234,5 +246,5 @@ def add_country_names(gdf: gpd.GeoDataFrame, hurricane_name, toprint):
         print("Total: ", sum([countries[c] for c in countries.keys()]))
 
 if __name__ == "__main__":
-    df = combine_all_vector_data_and_save_for_hurricane("irma",toprint=True,overwrite=True)
+    df = combine_all_vector_data_and_save_for_hurricane("test",toprint=True,overwrite=True)
     print(df.info())
