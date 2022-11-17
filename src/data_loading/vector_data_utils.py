@@ -1,6 +1,6 @@
 # Web scraping
 from importlib.resources import files
-from msilib.schema import ComboBox
+# from msilib.schema import ComboBox
 import requests
 import urllib
 
