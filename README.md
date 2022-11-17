@@ -23,9 +23,14 @@ The main source codes are in the src/data_loading, with scripts to download data
 ### Workflow:
 
 1. Go to DigitalGlobe https://www.maxar.com/open-data
+
 2. Select an event of interest, for example hurricane irma: https://www.maxar.com/open-data/hurricane-irma
+
 3. Select "File List" at the bottom of the page. Copy and paste the file to data/raw/digital-globe-file-list in the format of "{hurricane-name}_file_list.txt" (There are already two such file lists available, which are `irma_file_list.txt`,  `test_file_list.txt`)
-4. For start, run the following commands in the terminal: `python .\src\data_loading\patch_utils.py`. There should be a prompt asking you to input a name for the hurricane. Press Enter straight away and the program should use the default testing data (which is smaller in size). 
+
+4. For start, run the following commands in the terminal: `python src/data_loading/patch_utils.py`. There should be a prompt asking you to input a name for the hurricane. Press Enter straight away and the program should use the default testing data (which is smaller in size).
+
+Or you can type a hurricane name like `irma` or `test` or `test2`.
 
 The testing links can be found in data\processed\digital-globe-file-lists-tidied
 
