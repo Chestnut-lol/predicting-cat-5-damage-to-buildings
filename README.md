@@ -5,15 +5,23 @@
 
 ## Requirements
 - Python 3.9+
+- [conda](https://docs.conda.io/en/latest/)
 
 ## Getting started
 The main source codes are in the src/data_loading, with scripts to download data from DigitalGlobe. 
 
-Setup:
-1. Create a virtual environment
-2. Install the packages in `requirements/requirements.txt`. There are a few packages that need to be installed manually, and the instructions can be found `requirements/README`
+### Setup:
 
-Workflow:
+1. In this directory, create a virtual environment by running:
+
+       make create_environment
+
+2. This should give you everything you need in an virtual environment which can then be activated by:
+
+      conda activate ./env
+
+### Workflow:
+
 1. Go to DigitalGlobe https://www.maxar.com/open-data
 2. Select an event of interest, for example hurricane irma: https://www.maxar.com/open-data/hurricane-irma
 3. Select "File List" at the bottom of the page. Copy and paste the file to data/raw/digital-globe-file-list in the format of "{hurricane-name}_file_list.txt" (There are already two such file lists available, which are `irma_file_list.txt`,  `test_file_list.txt`)
@@ -27,17 +35,7 @@ The testing links can be found in data\processed\digital-globe-file-lists-tidied
 ├── Makefile           <- Makefile with commands like `make init` or `make lint-requirements`
 ├── README.md          <- The top-level README for developers using this project.
 |
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-|   |                     the creator's initials, and a short `-` delimited description, e.g.
-|   |                     `1.0_jqp_initial-data-exploration`.
-│   ├── exploratory    <- Notebooks for initial exploration.
-│   └── reports        <- Polished notebooks for presentations or intermediate results.
-│
-├── report             <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   ├── figures        <- Generated graphics and figures to be used in reporting
-│   └── sections       <- LaTeX sections. The report folder can be linked to your overleaf
-|                         report with github submodules.
-│
+├── data               <- Directory containing test data, and where new data should be placed
 ├── requirements       <- Directory containing the requirement files.
 │
 ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
