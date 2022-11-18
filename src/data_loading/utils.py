@@ -15,6 +15,8 @@ FILE_LIST_PREFIX = "https://raw.githubusercontent.com/Chestnut-lol/predicting-ca
 FILE_LIST_SUFFIX = "_file_list.txt" 
 DEFAULT_HURRICANE = "irma"
 
+earth_radius = 6371*10**(3)
+
 def print_message(toprint: bool, message: str, end = "\n"):
     if toprint:
         print(message)
@@ -29,9 +31,7 @@ def check_if_file_exist(path: str, delete_if_exist: bool) -> bool:
     return False
 
 def convert_meters_to_deg(meters):
-    earth_radius = 6371*10**(3)
     return (180*meters)/(earth_radius*math.pi)
 
 def convert_deg_to_meters(deg):
-    earth_radius = 6371*10**(3)
     return (earth_radius*math.pi*deg)/180
