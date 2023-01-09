@@ -72,7 +72,7 @@ def tidy_up_tif_links(links: List, hurricane_name: str, toprint: bool = True, ov
             src = rio.open(link)
             if src.count >= 3:
                 res.append(link)
-        except:
+        except rio.errors.RasterioIOError:
             pass
     after_count = len(res)
     print_message(toprint, f"Before: {before_count} links \nAfter: {after_count} links")
