@@ -66,7 +66,8 @@ def tidy_up_tif_links(links: List, hurricane_name: str, toprint: bool = True, ov
     before_count = len(links)
     print_message(toprint, f"Tidying up a total of {before_count} links...")
     # Only want tif files with band >= 3
-    for (link, idx) in zip(links, list(range(before_count))):
+    # for (link, idx) in zip(links, list(range(before_count))):
+    for idx, link in enumerate(links):
         print_message(toprint, f"{idx + 1}/{before_count}", end="\r")
         try:
             src = rio.open(link)
@@ -109,7 +110,8 @@ def find_useful_links_for_box(links: List, box: BoundingBox, toprint: bool = Tru
     """
     before_count = len(links)
     res = []
-    for (link, idx) in zip(links, list(range(before_count))):
+    # for (link, idx) in zip(links, list(range(before_count))):
+    for idx, link in enumerate(links):
         print_message(toprint, f"{idx + 1}/{before_count}")
         src = rio.open(link)
         if not rio.coords.disjoint_bounds(box, src.bounds):

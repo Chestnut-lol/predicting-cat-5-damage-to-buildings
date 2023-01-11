@@ -30,7 +30,7 @@ def get_indices_for_point(bounds_list: List, point: Point) -> List:
         for each index i, bounds_list[i] is a bound that contains the point
     """
     res = []
-    for (bound, idx) in zip(bounds_list, range(len(bounds_list))):
+    for idx, bound in enumerate(bounds_list):
         if check_point_in_bounding_box(point, bound):
             res.append(idx)
     return res
@@ -84,7 +84,7 @@ def crop_patches_for_point(
     print_message(toprint, "Getting list of indices for point...")
     indices = get_indices_for_point(bounds_list, point)
     print_message(toprint, f"Cropping from a total of {len(indices)} images...")
-    for (idx, i) in zip(indices, range(len(indices))):
+    for idx, i in enumerate(indices):
         print_message(toprint, f"{idx + 1}/{len(indices)}", end="\r")
         link = links[idx]
         with rio.open(link) as src:
