@@ -1,6 +1,8 @@
 import os
 import math
 
+from typing import Optional
+
 
 PATH_TO_SRC = os.path.join(os.path.dirname(__file__), '..')
 PATH_TO_DIR = os.path.join(PATH_TO_SRC, '..')
@@ -18,9 +20,20 @@ DEFAULT_HURRICANE = "irma"
 earth_radius = 6371 * 10**3
 
 
-def print_message(toprint: bool, message: str, end="\n") -> None:
+def print_message(toprint: bool, message: str, end: Optional[str] = "\n") -> None:
+    """Helper function to print if toprint is True
+
+    Parameters
+    ----------
+    toprint : bool
+        if True print message, otherwise nothing
+    message : str
+        str to print
+    end : str, optional
+        end of line str to pass to print(), default "\n"
+    """
     if toprint:
-        print(message)
+        print(message, end=end)
 
 
 def check_if_file_exist(path: str, delete_if_exist: bool) -> bool:
