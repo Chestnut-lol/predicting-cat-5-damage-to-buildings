@@ -53,7 +53,8 @@ def tidy_up_tif_links(links: List, hurricane_name: str, toprint: bool = True, ov
     if len(links) == 0:
         raise ValueError("Empty list of links!")
     if not overwrite:
-        # Check if tidied file exists
+        # Check if tidied file exists and if so get_tided_tif_links
+        # maybe redundant from the way this function is called
         if os.path.isdir(PATH_TO_TIDIED_FILELISTS):
             path = os.path.join(PATH_TO_TIDIED_FILELISTS, hurricane_name)
             if os.path.isfile(path):
