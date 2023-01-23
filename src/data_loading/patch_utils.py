@@ -99,12 +99,18 @@ def crop_patches_for_point(
         toprint: bool = True
 ) -> None:
     """
-    PARAMETERS:
-    ---
-        links: a list of links
-        bounds_list: a list of BoundingBox from rasterio.coords 
-        point: the point that we want to crop patches for
-        path_to_dir: path to the directory in which we will store all the patches
+    Parameters
+    ----------
+    links : list
+    bounds_list : list
+        rasterio.coords.BoundingBox
+    point : shapely.geometry.point.Point
+    point_idx : int
+    dist : float
+    path_to_dir : str
+        path to the directory in which we will store all the patches
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
     """
     print_message(toprint, "Setting up...")
     geodf = get_geom_for_point(point, dist)
