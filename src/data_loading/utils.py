@@ -15,7 +15,7 @@ FILE_LIST_PREFIX = "https://raw.githubusercontent.com/Chestnut-lol/predicting-ca
 FILE_LIST_SUFFIX = "_file_list.txt"
 DEFAULT_HURRICANE = "irma"
 
-earth_radius = 6371 * 10 ** 3
+earth_radius = 6371 * 10**3
 
 
 def print_message(toprint: bool, message: str, end="\n") -> None:
