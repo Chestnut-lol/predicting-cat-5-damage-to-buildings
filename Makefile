@@ -9,6 +9,12 @@ PROJECT_NAME = predicting-cat-5-damage-to-buildings
 PYTHON_INTERPRETER = python3
 PYTHON_ENV_VERSION = 3.9
 
+ifeq (,$(shell which mamba))
+HAS_MAMBA=False
+else
+HAS_MAMBA=True
+endif
+
 ifeq (,$(shell which conda))
 HAS_CONDA=False
 else
@@ -34,6 +40,14 @@ format:
 
 ## Set up python interpreter environment and install basic dependencies
 create_environment:
+ifeq (True,$(HAS_MAMBA))
+	@echo ">>> Detected mamba, creating mamba environment/."
+
+		# Create the conda environment
+	mamba env create --prefix=./env -f requirements/environment.yml
+
+	@echo ">>> New mamba env created. Activate from project directory with:\nmamba activate ./env"
+else
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 	
@@ -48,6 +62,7 @@ else
 	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
 	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
 	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+endif
 endif
 
 ## Install and set up handy jupyter notebook extensions
