@@ -97,7 +97,7 @@ def crop_patches_for_point(
         dist: float,
         path_to_dir: str,
         toprint: bool = True
-    ):
+) -> None:
     """
     PARAMETERS:
     ---
