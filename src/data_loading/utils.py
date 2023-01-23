@@ -37,6 +37,15 @@ def print_message(toprint: bool, message: str, end: Optional[str] = "\n") -> Non
 
 
 def check_if_file_exist(path: str, delete_if_exist: bool) -> bool:
+    """Check if file exist
+
+    Parameters
+    ----------
+    path: str,
+        path of the file to check
+    delete_if_exist: bool,
+        bool to overwrite file, True to overwrite
+    """
     if os.path.isfile(path):
         if delete_if_exist:
             os.remove(path)
@@ -47,8 +56,12 @@ def check_if_file_exist(path: str, delete_if_exist: bool) -> bool:
 
 
 def convert_meters_to_deg(meters: float) -> float:
+    """Convert meters to deg on the Earth
+    """
     return (180 * meters) / (earth_radius * math.pi)
 
 
 def convert_deg_to_meters(deg: float) -> float:
+    """Converts deg to meters on the Earth
+    """
     return (earth_radius * math.pi * deg) / 180
