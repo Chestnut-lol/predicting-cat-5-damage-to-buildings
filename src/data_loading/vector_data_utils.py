@@ -139,12 +139,14 @@ def load_all_vector_data_for_hurricane(hurricane_name: str = DEFAULT_HURRICANE, 
     """
     links = get_vector_data_links(hurricane_name, toprint)
     count = len(links)
-    print_message(toprint, "Extracting files...")
     if count == 0:
         raise ValueError("No links available!")
-    for (link, idx) in zip(links, list(range(count))):
+
+    print_message(toprint, "Extracting files...")
+    for idx, link in enumerate(links):
         print_message(toprint, f"{idx + 1}/{count}")
         destination_dir = load_vector_data_link(link, hurricane_name)
+
     print_message(toprint, f"Extracted files can be found in {destination_dir}")
     geojson_files = find_all_files_with_extension_in_dir(destination_dir, ".geojson", [])
     print_message(toprint, f"There are {len(geojson_files)} geojson files available")
