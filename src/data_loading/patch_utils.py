@@ -83,7 +83,7 @@ def create_dataset(data: np.ndarray, crs: CRS, count: int, transform: affine.Aff
     """
     # Receives a 2D array, a transform and a crs to create a rasterio dataset
     memfile = MemoryFile()
-    dataset = memfile.open(driver='GTiff', height=data.shape[1], width=data.shape[2], count=count, crs=crs,
+    dataset = memfile.open(driver="GTiff", height=data.shape[1], width=data.shape[2], count=count, crs=crs,
                            transform=transform, dtype=data.dtype)
     dataset.write(data)
     return dataset
@@ -127,8 +127,8 @@ def crop_patches_for_point(
         print_message(toprint, "Saving...")
         filename = os.path.join(path_to_dir, f"{point_idx}-{i + 1}.tif")
         with rio.open(
-                filename, 'w',
-                driver='GTiff',
+                filename, "w",
+                driver="GTiff",
                 width=clipped.shape[2],
                 height=clipped.shape[1],
                 count=count,
