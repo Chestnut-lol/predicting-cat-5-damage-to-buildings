@@ -67,6 +67,20 @@ def get_geom_for_point(point: Point, dist: float):
 
 
 def create_dataset(data: np.ndarray, crs: CRS, count: int, transform: affine.Affine) -> rio.io.DatasetReader:
+    """Open a rasterio memory file as a rasterio dataset
+
+    Parameters
+    ----------
+    data : np.ndarray
+    crs: rasterio.crs.CRS
+        crs to use for the dataset
+    count : int
+    transform : affine.Affine
+
+    Returns
+    -------
+    dataset : rio.io.DatasetReader
+    """
     # Receives a 2D array, a transform and a crs to create a rasterio dataset
     memfile = MemoryFile()
     dataset = memfile.open(driver='GTiff', height=data.shape[1], width=data.shape[2], count=count, crs=crs,
