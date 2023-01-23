@@ -43,7 +43,17 @@ def get_indices_for_point(bounds_list: List, point: Point) -> List:
 def get_geom_for_point(point: Point, dist: float):
     """
     Create a BoundingBox with the point at the center. 
-    Each edge is at a distance of dist meters from the point
+    Each edge is at a distance of dist meters from the point.
+
+    Parameters
+    ----------
+    point : shapely.geometry.point.Point
+    dist : float
+
+    Returns
+    -------
+    geodf : geopandas.geodataframe.GeoDataFrame
+        geodataframe of the bounding box
     """
     deg = convert_meters_to_deg(dist)
     left, right, top, bottom = (point.x - deg, point.x + deg, point.y + deg, point.y - deg)
