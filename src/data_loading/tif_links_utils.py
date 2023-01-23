@@ -91,18 +91,18 @@ def tidy_up_tif_links(links: List, hurricane_name: str, toprint: bool = True, ov
     for idx, link in enumerate(links):
         print_message(toprint, f"{idx + 1}/{before_count}", end="\r")
         try:
-            src = rio.open(link)
-            if src.count >= 3:
-                res.append(link)
+            with rio.open(link) as src:
+                if src.count >= 3:
+                    res.append(link)
         except rio.errors.RasterioIOError:
             pass
     after_count = len(res)
     print_message(toprint, f"Before: {before_count} links \nAfter: {after_count} links")
     path = os.path.join(PATH_TO_TIDIED_FILELISTS, hurricane_name)
-    f = open(path, "w")
-    for link in res:
-        f.write(link + "\n")
-    f.close()
+
+    with open(path, "w") as f:
+        for link in res:
+            f.write(link + "\n")
     return res
 
 
