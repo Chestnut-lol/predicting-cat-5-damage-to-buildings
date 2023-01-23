@@ -1,26 +1,24 @@
 # Handle tif files
 # from asyncio.format_helpers import _format_callback_source
-from genericpath import isfile
+# from genericpath import isfile
 import rasterio as rio
-import affine
+# import affine
 
 # Some useful things from rasterio
 from rasterio.coords import BoundingBox
-
-# Handle geojson files
-import geopandas as gpd
 
 # Web scraping
 import requests
 
 # Others
-from typing import List
 import sys
 import os
+from typing import List
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.data_loading.utils import DEFAULT_HURRICANE, FILE_LIST_PREFIX, FILE_LIST_SUFFIX, PATH_TO_TIDIED_FILELISTS
 from src.data_loading.utils import print_message
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def get_raw_tif_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = True) -> List:
