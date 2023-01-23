@@ -23,14 +23,14 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 def get_indices_for_point(bounds_list: List, point: Point) -> List:
     """
-    PARAMETERS:
-    --- 
-    bounds_list: a list of BoundingBox
-    point: a Point object from shapely
+    Parameters
+    ----------
+    bounds_list : a list of BoundingBox
+    point : shapely.geometry.point.Point
 
-    RETURNS:
-    ---
-    indices: a list of indices
+    Returns
+    -------
+    res : a list of indices
         for each index i, bounds_list[i] is a bound that contains the point
     """
     res = []
