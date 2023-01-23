@@ -53,8 +53,8 @@ def get_raw_tif_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = T
 
 def tidy_up_tif_links(links: List, hurricane_name: str, toprint: bool = True, overwrite: bool = False) -> List:
     """
-    Given a list of tif links, will discard links that are useless
-    Will then save the tidied list of links in data/processed/digital-globe-file-list-tidied
+    Given a list of tif links, will discard links that are useless, i.e. having less than 3 bands.
+    Will then save the tidied list of links in ./data/processed/digital-globe-file-list-tidied
     
     Parameters
     ----------
