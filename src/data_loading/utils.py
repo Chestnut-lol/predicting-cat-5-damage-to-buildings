@@ -1,6 +1,6 @@
-import sys
 import os
 import math
+
 
 PATH_TO_SRC = os.path.join(os.path.dirname(__file__), '..')
 PATH_TO_DIR = os.path.join(PATH_TO_SRC, '..')
