@@ -165,7 +165,7 @@ def main(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = True) -> None:
     os.makedirs(path_to_hurricane_patches_pre, exist_ok=True)
     os.makedirs(path_to_hurricane_patches_post, exist_ok=True)
 
-    for (point, idx) in zip(gdf.geometry, range(len(gdf))):
+    for idx, point in enumerate(gdf.geometry):
         crop_patches_for_point(pre_event_links, pre_event_bounds, point, idx, 20, path_to_hurricane_patches_pre,
                                toprint)
         crop_patches_for_point(post_event_links, post_event_bounds, point, idx, 20, path_to_hurricane_patches_post,
