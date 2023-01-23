@@ -21,7 +21,7 @@ import zipfile
 import sys
 import os
 
-from src.data_loading.utils import *
+from src.data_loading.utils import DEFAULT_HURRICANE, FILE_LIST_SUFFIX, FILE_LIST_PREFIX, print_message, PATH_TO_DATA_RAW, PATH_TO_DIR, PATH_TO_GEOJSONS
 from src.data_loading.tif_links_utils import get_list_of_bounds_for_hurricane
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
