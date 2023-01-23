@@ -31,6 +31,18 @@ def get_vector_data_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool
     """
     Get a list of vector data links for the hurricane with hurricane_name
     The list must exist on github
+
+    Parameters
+    ----------
+    hurricane_name : str, optional
+        name of the hurricane to use, default DEFAULT_HURRICANE i.e. irma
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    links : list
+        list of the links of the vector files to download
     """
     filename = hurricane_name + FILE_LIST_SUFFIX
     file_list_path = FILE_LIST_PREFIX + filename
@@ -48,6 +60,18 @@ def load_vector_data_link(vector_data_link, hurricane_name: str = DEFAULT_HURRIC
     """
     Given a link to the vector data, will download the (zip) file & extract it 
     Will save the file in the correct directory in /data
+
+    Parameters
+    ----------
+    vector_data_link : str
+        string of the link to the vector data
+    hurricane_name : str, optional
+        name of the hurricane to use, default DEFAULT_HURRICANE i.e. irma
+
+    Returns
+    -------
+    destination_dir : str
+        path to vector data unzip directory
     """
     # Download and extract the zip file
     filename = vector_data_link.split("/")[-1]  # name of the zip file
@@ -68,12 +92,23 @@ def load_vector_data_link(vector_data_link, hurricane_name: str = DEFAULT_HURRIC
 
 def find_all_files_with_extension_in_dir(dirname: str, desired_extension: str, files: Optional[List] = None) -> List:
     """
-    Given a directory, finds a list of paths to files with extension 
-    
-    EXAMPLE:
-    --- 
-    Using desired_extension = ".geojson", will return a list of paths to all
-    geojson files in the directory 
+    Given a directory, recursively finds a list of paths to files with extension.
+    For instance, with desired_extension = ".geojson", will return a list of paths to all
+    geojson files in the directory dirname
+
+    Parameters
+    ----------
+    dirname : str
+        name of the directory the look for files
+    desired_extension : str
+        extension wanted for the files
+    files : list, optional
+        optional list of the files to append to, default is None
+
+    Returns
+    -------
+    files : list
+        list of the found files with the specific extension
     """
     if files is None:
         files = []
@@ -90,9 +125,17 @@ def find_all_files_with_extension_in_dir(dirname: str, desired_extension: str, f
 
 def load_all_vector_data_for_hurricane(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = True) -> List:
     """
-    RETURNS
-    ---
-        files: a list of paths to all the geojson files related to hurricane_name
+    Parameters
+    ----------
+    hurricane_name : str, optional
+        name of the hurricane to use, default DEFAULT_HURRICANE i.e. irma
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    files : list
+        a list of paths to all the geojson files related to hurricane_name
     """
     links = get_vector_data_links(hurricane_name, toprint)
     count = len(links)
@@ -111,13 +154,21 @@ def load_all_vector_data_for_hurricane(hurricane_name: str = DEFAULT_HURRICANE, 
 def combine_all_vector_data(hurricane_name: str, toprint: bool, overwrite: bool):
     """
     Combines all geojson files for the hurricane into one geojson file
-    The combined file will be saved in data/processed/geojson
+    The combined file will be saved in ./data/processed/geojson
 
-    PARAMETERS:
-    ---
-        hurricane_name: name of the hurricane
-        toprint: whether or not to print progress
-        overwrite: whether or not to overwrite existing processed vector data
+    Parameters
+    ----------
+    hurricane_name : str
+        name of the hurricane to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+    overwrite : bool
+        bool to overwrite existing processed vector data
+
+    Returns
+    -------
+    res : geopandas.geodataframe.GeoDataFrame
+        GeoDataFrame of the concatenated (if needed) of all vector data associated to hurricane_name
     """
     # This is the path to the processed vector data file
     if not os.path.isdir(PATH_TO_GEOJSONS):
@@ -142,6 +193,21 @@ def combine_all_vector_data(hurricane_name: str, toprint: bool, overwrite: bool)
 
 
 def combine_all_vector_data_and_save_for_hurricane(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = True, overwrite: bool = False):
+    """
+
+    Parameters
+    ----------
+    hurricane_name : str, optional
+        name of the hurricane to use, default DEFAULT_HURRICANE i.e. irma
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+    overwrite : bool, optional
+        bool to overwrite file in geojsons directory, default False
+
+    Returns
+    -------
+    trimmed_filtered :
+    """
     # This is the path to the processed vector data file
     if not os.path.isdir(PATH_TO_GEOJSONS):
         os.mkdir(PATH_TO_GEOJSONS)
@@ -174,15 +240,33 @@ def combine_all_vector_data_and_save_for_hurricane(hurricane_name: str = DEFAULT
 
 
 def check_point_in_bounding_box(point: Point, box: BoundingBox) -> bool:
+    """
+
+    Parameters
+    ----------
+    point : shapely.geometry.point.Point
+    box : rasterio.coords.BoundingBox
+
+    Returns
+    -------
+    bool
+        True if point is in box
+    """
     return (box.left < point.x < box.right) and (box.bottom < point.y < box.top)
 
 
 def exist_link_containing_point(point: Point, bounds_list: List) -> bool:
     """
-    PARAMETERS
-    ---
-        point: a Point object from shapely.geometry.point
-        bounds_list: a list of BoundingBox objects
+    Parameters
+    ----------
+    point : shapely.geometry.point.Point
+    bounds_list : list
+        list of rasterio.coords.BoundingBox
+
+    Returns
+    -------
+    bool
+        True if there is at least a box in bounds_list which contains point
     """
     for bound in bounds_list:
         if check_point_in_bounding_box(point, bound):
@@ -192,11 +276,21 @@ def exist_link_containing_point(point: Point, bounds_list: List) -> bool:
 
 def trim_gdf(gdf: gpd.GeoDataFrame, hurricane_name: str, toprint: bool):
     """
-    This trims down the geodataframe 
-    and adds two extra cols: 
+    Trims down the geodataframe and adds two extra cols:
         exist_pre_event_imagery
         exist_post_event_imagery
-    We only keep the points that we have image for
+    Only keeping the points that have image associated
+
+    Parameters
+    ---------
+    gdf : geopandas.geodataframe.GeoDataFrame
+    hurricane_name : str
+        name of the hurricane to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
     """
     print_message(toprint, "Getting list of bounds...")
     bounds_dict = get_list_of_bounds_for_hurricane(hurricane_name, toprint)
@@ -230,10 +324,15 @@ def trim_gdf(gdf: gpd.GeoDataFrame, hurricane_name: str, toprint: bool):
 
 def find_countries_for_point(point: Point) -> str:
     """
-    Find the country that the point is in
+    Find the country which contains the point
+
+    Parameters
+    ----------
+    point : shapely.geometry.point.Point
     
-    RETURNS:
-    ---
+    Returns
+    -------
+    str
         The country/countries that the point is in, separated by commas
     """
     cs = [c.name for c in cbb.country_subunits_containing_point(point.x, point.y)]
@@ -241,6 +340,18 @@ def find_countries_for_point(point: Point) -> str:
 
 
 def add_country_names(gdf: gpd.GeoDataFrame, hurricane_name: str, toprint: bool) -> None:
+    """
+    Add countries to the GeoDataFrame which were in the path of the hurricane given by hurricane_name
+
+    Parameters
+    ----------
+    gdf : geopandas.geodataframe.GeoDataFrame
+        geopandas dataframe to add country to
+    hurricane_name : str
+        name of the hurricane to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+    """
     gdf["country"] = gdf.geometry.apply(
         lambda point: find_countries_for_point(point)
     )
