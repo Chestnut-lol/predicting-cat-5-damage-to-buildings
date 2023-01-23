@@ -168,7 +168,14 @@ def find_useful_links_for_box(links: List, box: BoundingBox, toprint: bool = Tru
     return res
 
 
-def make_bounding_box_and_find_useful_links(left: float, bottom: float, right: float, top: float, links: List, toprint: bool = True) -> tuple:
+def make_bounding_box_and_find_useful_links(
+        left: float,
+        bottom: float,
+        right: float,
+        top: float,
+        links: List,
+        toprint: bool = True
+) -> tuple:
     """
     Parameters
     ----------
