@@ -203,7 +203,8 @@ def make_bounding_box_and_find_useful_links(
     useful_post_event_links = find_useful_links_for_box(post_event_links, box, toprint)
     print_message(toprint, f"Found {len(pre_event_links)} pre event links")
     print_message(toprint, f"Found {len(post_event_links)} post event links")
-    return (box, useful_pre_event_links, useful_post_event_links)
+
+    return box, useful_pre_event_links, useful_post_event_links
 
 
 def get_list_of_bounds_for_hurricane(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = True) -> dict:
