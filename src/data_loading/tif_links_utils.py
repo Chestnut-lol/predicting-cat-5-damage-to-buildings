@@ -25,6 +25,18 @@ def get_raw_tif_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = T
     """
     Get a list of tif links for the hurricane with hurricane_name
     The list must exist on github
+
+    Parameters
+    ----------
+    hurricane_name : str
+        Name of the hurricane to get the raw tif links
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    links : list
+        list of the links of the tif files to download
     """
     filename = hurricane_name + FILE_LIST_SUFFIX
     file_list_path = FILE_LIST_PREFIX + filename
@@ -44,11 +56,21 @@ def tidy_up_tif_links(links: List, hurricane_name: str, toprint: bool = True, ov
     Given a list of tif links, will discard links that are useless
     Will then save the tidied list of links in data/processed/digital-globe-file-list-tidied
     
-    PARAMETERS
-    ---
-        links: a list of links
-        toprint: whether or not to print progress
-        overwrite: if exists hurricane_file_list_tidied, whether or not to overwrite
+    Parameters
+    ----------
+    links : list
+        list of links
+    hurricane_name : str
+        name of the hurricane to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+    overwrite : bool, optional
+        bool to overwrite hurricane_file_list_tidied if True, default False
+
+    Returns
+    -------
+    res : list
+        list of tidy up links
     """
     if len(links) == 0:
         raise ValueError("Empty list of links!")
@@ -88,6 +110,18 @@ def get_tidied_tif_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool 
     """
     Get a list of tidied tif links for the hurricane with hurricane_name
     If the tidied file list does not exist, will look for raw data & tidy up
+
+    Parameters
+    ----------
+    hurricane_name : str
+        name of the hurricane to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    list
+        list of links of the tifs
     """
     file_list_path = os.path.join(PATH_TO_TIDIED_FILELISTS, hurricane_name)
     if not os.path.isfile(file_list_path):
@@ -106,6 +140,20 @@ def get_tidied_tif_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool 
 def find_useful_links_for_box(links: List, box: BoundingBox, toprint: bool = True) -> List:
     """
     Find useful tiff links that overlap with the bounding box
+
+    Parameters
+    ----------
+    links : list
+        list of the links to use
+    box : rasterio.coords.BoundingBox
+        boundingBox to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    res : list
+        list of the links that overlap with the box
     """
     before_count = len(links)
     res = []
@@ -122,14 +170,21 @@ def find_useful_links_for_box(links: List, box: BoundingBox, toprint: bool = Tru
 
 def make_bounding_box_and_find_useful_links(left: float, bottom: float, right: float, top: float, links: List, toprint: bool = True) -> tuple:
     """
-    PARAMETERS:
-    ---
-        left, bottom, right top: for making the bounding box
-        links: list of links
-    
-    RETURNS:
-    ---
-        (boundingBox, useful-pre-event-links, useful-post-event-links)
+    Parameters
+    ----------
+    left : float
+    bottom : float
+    right : float
+    top : float
+        coordinates for the bounding box
+    links: list
+        list of the links to use
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    (boundingBox, useful-pre-event-links, useful-post-event-links)
     """
     box = BoundingBox(left, bottom, right, top)
     pre_event_links = [link for link in links if "pre-event" in link]
@@ -145,11 +200,19 @@ def make_bounding_box_and_find_useful_links(left: float, bottom: float, right: f
 
 def get_list_of_bounds_for_hurricane(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool = True) -> dict:
     """
-    RETURNS:
-    ---
-        A dictionary, res, with keys: pre, post
-        res["pre"]: list of bounds of the sources obtained from pre_event_links
-        res["post"]: list of bounds of the sources obtained from post_event_links
+    Parameters
+    ----------
+    hurricane_name : str, optional
+        name of the hurricane to use, default DEFAULT_HURRICANE i.e. irma
+    toprint : bool, optional
+        bool to be passed to print_message helper function, see print_message(), default True
+
+    Returns
+    -------
+    res : dict
+        dictionary of the links with the following structure:
+            key is "pre" is the list of bounds of the sources obtained from pre_event_links
+            key is "post" is the list of bounds of the sources obtained from post_event_links
     """
     res = dict()
     good_links = get_tidied_tif_links(hurricane_name, toprint)
