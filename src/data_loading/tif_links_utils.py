@@ -196,8 +196,10 @@ def make_bounding_box_and_find_useful_links(
     pre_event_links = [link for link in links if "pre-event" in link]
     post_event_links = [link for link in links if "post-event" in link]
     print_message(toprint, "Finding pre event links...")
+
     useful_pre_event_links = find_useful_links_for_box(pre_event_links, box, toprint)
     print_message(toprint, "Finding post event links...")
+
     useful_post_event_links = find_useful_links_for_box(post_event_links, box, toprint)
     print_message(toprint, f"Found {len(pre_event_links)} pre event links")
     print_message(toprint, f"Found {len(post_event_links)} post event links")
