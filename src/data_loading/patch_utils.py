@@ -115,8 +115,10 @@ def crop_patches_for_point(
     print_message(toprint, "Setting up...")
     geodf = get_geom_for_point(point, dist)
     (left, bottom, right, top) = geodf.geometry[0].bounds
+
     print_message(toprint, "Getting list of indices for point...")
     indices = get_indices_for_point(bounds_list, point)
+
     print_message(toprint, f"Cropping from a total of {len(indices)} images...")
     for idx, i in enumerate(indices):
         print_message(toprint, f"{idx + 1}/{len(indices)}", end="\r")
