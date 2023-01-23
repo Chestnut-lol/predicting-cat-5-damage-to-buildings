@@ -41,9 +41,9 @@ def check_if_file_exist(path: str, delete_if_exist: bool) -> bool:
 
     Parameters
     ----------
-    path : str,
+    path : str
         path of the file to check
-    delete_if_exist : bool,
+    delete_if_exist : bool
         bool to overwrite file, True to overwrite
     """
     if os.path.isfile(path):
