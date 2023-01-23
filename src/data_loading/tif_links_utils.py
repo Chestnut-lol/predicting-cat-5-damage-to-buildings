@@ -126,7 +126,7 @@ def get_tidied_tif_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool 
     if not os.path.isfile(file_list_path):
         links = get_raw_tif_links(hurricane_name, toprint)
         res = tidy_up_tif_links(links, hurricane_name, toprint)
-        assert os.path.isfile(file_list_path) == True, "file should exist now!"
+        assert os.path.isfile(file_list_path) is True, "file should exist now!"
         return res
     else:
         data = open(file_list_path, "r")
