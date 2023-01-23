@@ -56,7 +56,7 @@ def get_vector_data_links(hurricane_name: str = DEFAULT_HURRICANE, toprint: bool
     return links
 
 
-def load_vector_data_link(vector_data_link, hurricane_name: str = DEFAULT_HURRICANE) -> str:
+def load_vector_data_link(vector_data_link: str, hurricane_name: str = DEFAULT_HURRICANE) -> str:
     """
     Given a link to the vector data, will download the (zip) file & extract it 
     Will save the file in the correct directory in /data
